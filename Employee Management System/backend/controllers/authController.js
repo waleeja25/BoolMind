@@ -9,9 +9,6 @@ function sendError(err, res, fallbackMessage) {
 
 async function signup(req, res) {
   const { username, email, password } = req.body;
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: 'Username, email and password are required' });
-  }
 
   try {
     const result = await signupService({ username, email, password });
@@ -23,9 +20,6 @@ async function signup(req, res) {
 
 async function login(req, res) {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
-  }
 
   try {
     const result = await loginService({ email, password });
