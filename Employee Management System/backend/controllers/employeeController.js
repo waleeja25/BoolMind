@@ -39,10 +39,11 @@ async function getEmployees(req, res) {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
   const skip = (page - 1) * limit;
+  const sortDir = req.query.sort === 'asc' ? 1 : -1;
 
   const [employees, total] = await Promise.all([
     Employee.find(filter)
-      .sort({ joiningDate: -1, _id: -1 })
+      .sort({ joiningDate: sortDir, _id: sortDir })
       .skip(skip)
       .limit(limit),
     Employee.countDocuments(filter),

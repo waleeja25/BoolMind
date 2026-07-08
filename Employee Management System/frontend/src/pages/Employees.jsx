@@ -52,6 +52,7 @@ function Employees() {
   const [department, setDepartment] = useState('')
   const [joinedFrom, setJoinedFrom] = useState('')
   const [joinedTo, setJoinedTo] = useState('')
+  const [sort, setSort] = useState('desc')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -66,14 +67,14 @@ function Employees() {
 
   useEffect(() => {
     setPage(1)
-  }, [search, department, joinedFrom, joinedTo])
+  }, [search, department, joinedFrom, joinedTo, sort])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       loadEmployees()
     }, 300)
     return () => clearTimeout(timeout)
-  }, [search, department, joinedFrom, joinedTo, page])
+  }, [search, department, joinedFrom, joinedTo, sort, page])
 
   async function loadEmployees() {
     const hasDateRange = Boolean(joinedFrom && joinedTo)
@@ -85,6 +86,7 @@ function Employees() {
         department,
         joinedFrom: hasDateRange ? joinedFrom : '',
         joinedTo: hasDateRange ? joinedTo : '',
+        sort,
         page,
         limit: PAGE_SIZE,
       })
@@ -163,6 +165,14 @@ function Employees() {
                 {dept}
               </option>
             ))}
+          </select>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-shadow focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option value="desc">Joining date: Newest first</option>
+            <option value="asc">Joining date: Oldest first</option>
           </select>
         </div>
 
