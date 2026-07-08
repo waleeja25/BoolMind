@@ -26,3 +26,35 @@ export function login({ email, password }) {
     body: JSON.stringify({ email, password }),
   })
 }
+
+export function getDepartments() {
+  return request('/departments')
+}
+
+export function getEmployees() {
+  return request('/employees')
+}
+
+export function getEmployee(id) {
+  return request(`/employees/${id}`)
+}
+
+export function createEmployee(data) {
+  return request('/employees', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export function updateEmployee(id, data) {
+  return request(`/employees/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+}
+
+export function deleteEmployee(id) {
+  return request(`/employees/${id}`, {
+    method: 'DELETE',
+  })
+}

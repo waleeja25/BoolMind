@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const DEPARTMENTS = require('../constants/departments');
 
 const employeeSchema = new mongoose.Schema(
   {
@@ -23,8 +24,8 @@ const employeeSchema = new mongoose.Schema(
       enum: ['male', 'female', 'other'],
     },
     department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Department',
+      type: String,
+      enum: DEPARTMENTS,
       required: true,
     },
     designation: {

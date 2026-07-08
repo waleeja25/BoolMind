@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getSession, clearSession } from '../lib/auth'
 
 function Dashboard() {
@@ -17,6 +17,12 @@ function Dashboard() {
           Welcome, {session?.user?.username}
         </h1>
         <p className="mt-1 text-sm text-gray-500">{session?.user?.email}</p>
+        <Link
+          to="/employees"
+          className="mt-6 block w-full rounded-lg bg-blue-600 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+        >
+          Manage Employees
+        </Link>
         <button
           onClick={handleLogout}
           className="mt-6 w-full rounded-lg border border-gray-300 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"

@@ -2,6 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
+import Employees from './pages/Employees'
+import EmployeeForm from './pages/EmployeeForm'
+import EmployeeView from './pages/EmployeeView'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -14,6 +17,38 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees"
+        element={
+          <ProtectedRoute>
+            <Employees />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees/new"
+        element={
+          <ProtectedRoute>
+            <EmployeeForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees/:id"
+        element={
+          <ProtectedRoute>
+            <EmployeeView />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees/:id/edit"
+        element={
+          <ProtectedRoute>
+            <EmployeeForm />
           </ProtectedRoute>
         }
       />
