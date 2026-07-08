@@ -1,7 +1,23 @@
 const Employee = require('../models/Employee');
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function getEmployees(req, res) {
-  const employees = await Employee.find().sort({ createdAt: -1 });
+  const { search, department } = req.query;
+  const filter = {};
+
+  if (search) {
+    const regex = new RegExp(escapeRegex(search), 'i');
+    filter.$or = [{ name: regex }, { email: regex }, { designation: regex }];
+  }
+
+  if (department) {
+    filter.department = department;
+  }
+
+  const employees = await Employee.find(filter).sort({ joiningDate: -1 });
   res.json(employees);
 }
 

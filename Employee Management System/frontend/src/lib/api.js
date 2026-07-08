@@ -38,8 +38,12 @@ export function getDepartments() {
   return request('/departments')
 }
 
-export function getEmployees() {
-  return request('/employees')
+export function getEmployees({ search, department } = {}) {
+  const params = new URLSearchParams()
+  if (search) params.set('search', search)
+  if (department) params.set('department', department)
+  const query = params.toString()
+  return request(`/employees${query ? `?${query}` : ''}`)
 }
 
 export function getEmployee(id) {

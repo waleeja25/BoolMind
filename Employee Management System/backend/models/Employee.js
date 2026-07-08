@@ -46,4 +46,7 @@ const employeeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+employeeSchema.index({ department: 1, joiningDate: -1 });
+employeeSchema.index({ joiningDate: -1 });
+
 module.exports = mongoose.model('Employee', employeeSchema);
