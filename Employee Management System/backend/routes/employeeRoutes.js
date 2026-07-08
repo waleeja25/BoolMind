@@ -6,8 +6,11 @@ const {
   updateEmployee,
   deleteEmployee,
 } = require('../controllers/employeeController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+router.use(authMiddleware);
 
 router.get('/', getEmployees);
 router.get('/:id', getEmployee);
