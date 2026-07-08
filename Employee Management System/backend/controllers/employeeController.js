@@ -5,7 +5,7 @@ function escapeRegex(str) {
 }
 
 async function getEmployees(req, res) {
-  const { search, department } = req.query;
+  const { search, department, joinedFrom, joinedTo } = req.query;
   const filter = {};
 
   if (search) {
@@ -15,6 +15,25 @@ async function getEmployees(req, res) {
 
   if (department) {
     filter.department = department;
+  }
+
+  if (joinedFrom || joinedTo) {
+    filter.joiningDate = {};
+
+    if (joinedFrom) {
+      const from = new Date(joinedFrom);
+      if (!isNaN(from)) filter.joiningDate.$gte = from;
+    }
+
+    if (joinedTo) {
+      const to = new Date(joinedTo);
+      if (!isNaN(to)) {
+        to.setHours(23, 59, 59, 999);
+        filter.joiningDate.$lte = to;
+      }
+    }
+
+    if (Object.keys(filter.joiningDate).length === 0) delete filter.joiningDate;
   }
 
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);

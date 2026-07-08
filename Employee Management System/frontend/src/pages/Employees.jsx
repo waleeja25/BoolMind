@@ -50,6 +50,8 @@ function Employees() {
   const [departments, setDepartments] = useState([])
   const [search, setSearch] = useState('')
   const [department, setDepartment] = useState('')
+  const [joinedFrom, setJoinedFrom] = useState('')
+  const [joinedTo, setJoinedTo] = useState('')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -64,19 +66,28 @@ function Employees() {
 
   useEffect(() => {
     setPage(1)
-  }, [search, department])
+  }, [search, department, joinedFrom, joinedTo])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       loadEmployees()
     }, 300)
     return () => clearTimeout(timeout)
-  }, [search, department, page])
+  }, [search, department, joinedFrom, joinedTo, page])
 
   async function loadEmployees() {
+    const hasDateRange = Boolean(joinedFrom && joinedTo)
+
     setLoading(true)
     try {
-      const result = await getEmployees({ search, department, page, limit: PAGE_SIZE })
+      const result = await getEmployees({
+        search,
+        department,
+        joinedFrom: hasDateRange ? joinedFrom : '',
+        joinedTo: hasDateRange ? joinedTo : '',
+        page,
+        limit: PAGE_SIZE,
+      })
       setEmployees(result.data)
       setTotal(result.total)
       setTotalPages(result.totalPages)
@@ -153,6 +164,36 @@ function Employees() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="mt-3 flex items-center gap-3">
+          <label className="text-sm text-gray-500">Joined between</label>
+          <input
+            type="date"
+            value={joinedFrom}
+            onChange={(e) => setJoinedFrom(e.target.value)}
+            max={joinedTo || undefined}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-shadow focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          />
+          <span className="text-sm text-gray-400">and</span>
+          <input
+            type="date"
+            value={joinedTo}
+            onChange={(e) => setJoinedTo(e.target.value)}
+            min={joinedFrom || undefined}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-shadow focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          />
+          {(joinedFrom || joinedTo) && (
+            <button
+              onClick={() => {
+                setJoinedFrom('')
+                setJoinedTo('')
+              }}
+              className="text-sm font-medium text-gray-500 hover:text-gray-900"
+            >
+              Clear
+            </button>
+          )}
         </div>
 
         {error && (
