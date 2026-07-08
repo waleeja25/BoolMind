@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const DEPARTMENTS = require('../constants/departments');
+const { DEPARTMENTS } = require('../lib');
 
 const employeeSchema = new mongoose.Schema(
   {
@@ -40,7 +40,7 @@ const employeeSchema = new mongoose.Schema(
     },
     joiningDate: {
       type: Date,
-      required: true,
+      required: [true,'Joining date is required'],
     },
   },
   { timestamps: true }

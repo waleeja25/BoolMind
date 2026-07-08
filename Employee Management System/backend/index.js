@@ -3,9 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const departmentRoutes = require('./routes/departmentRoutes');
-const employeeRoutes = require('./routes/employeeRoutes');
+const router = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,9 +15,8 @@ app.get('/', (req, res) => {
   res.send('API is running');
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/departments', departmentRoutes);
-app.use('/api/employees', employeeRoutes);
+
+app.use(router)
 
 connectDB()
   .then(() => {

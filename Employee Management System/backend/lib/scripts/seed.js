@@ -1,6 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Employee = require('../models/Employee');
+const Employee = require('../../models/Employee');
 
 const employees = [
   {

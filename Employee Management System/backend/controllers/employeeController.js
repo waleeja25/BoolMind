@@ -1,107 +1,61 @@
-const Employee = require('../models/Employee');
+const {
+  listEmployees,
+  getEmployeeById,
+  createEmployee: createEmployeeService,
+  updateEmployeeById,
+  deleteEmployeeById,
+} = require('../services');
 
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function sendError(err, res, fallbackMessage) {
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({ message: err.message, ...(err.extra || {}) });
+  }
+  res.status(500).json({ message: fallbackMessage, error: err.message });
 }
 
 async function getEmployees(req, res) {
-  const { search, department, joinedFrom, joinedTo } = req.query;
-  const filter = {};
-
-  if (search) {
-    const regex = new RegExp(escapeRegex(search), 'i');
-    filter.$or = [{ name: regex }, { email: regex }, { designation: regex }];
+  try {
+    const result = await listEmployees(req.query);
+    res.json(result);
+  } catch (err) {
+    sendError(err, res, 'Failed to fetch employees');
   }
-
-  if (department) {
-    filter.department = department;
-  }
-
-  if (joinedFrom || joinedTo) {
-    filter.joiningDate = {};
-
-    if (joinedFrom) {
-      const from = new Date(joinedFrom);
-      if (!isNaN(from)) filter.joiningDate.$gte = from;
-    }
-
-    if (joinedTo) {
-      const to = new Date(joinedTo);
-      if (!isNaN(to)) {
-        to.setHours(23, 59, 59, 999);
-        filter.joiningDate.$lte = to;
-      }
-    }
-
-    if (Object.keys(filter.joiningDate).length === 0) delete filter.joiningDate;
-  }
-
-  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
-  const skip = (page - 1) * limit;
-  const sortDir = req.query.sort === 'asc' ? 1 : -1;
-
-  const [employees, total] = await Promise.all([
-    Employee.find(filter)
-      .sort({ joiningDate: sortDir, _id: sortDir })
-      .skip(skip)
-      .limit(limit),
-    Employee.countDocuments(filter),
-  ]);
-
-  res.json({
-    data: employees,
-    page,
-    limit,
-    total,
-    totalPages: Math.ceil(total / limit),
-  });
 }
 
 async function getEmployee(req, res) {
-  const employee = await Employee.findById(req.params.id);
-  if (!employee) {
-    return res.status(404).json({ message: 'Employee not found' });
+  try {
+    const employee = await getEmployeeById(req.params.id);
+    res.json(employee);
+  } catch (err) {
+    sendError(err, res, 'Failed to fetch employee');
   }
-  res.json(employee);
 }
 
 async function createEmployee(req, res) {
   try {
-    const employee = await Employee.create(req.body);
+    const employee = await createEmployeeService(req.body);
     res.status(201).json(employee);
   } catch (err) {
-    if (err.code === 11000) {
-      return res.status(409).json({ message: 'Email already in use' });
-    }
-    res.status(400).json({ message: 'Failed to create employee', error: err.message });
+    sendError(err, res, 'Failed to create employee');
   }
 }
 
 async function updateEmployee(req, res) {
   try {
-    const employee = await Employee.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!employee) {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
+    const employee = await updateEmployeeById(req.params.id, req.body);
     res.json(employee);
   } catch (err) {
-    if (err.code === 11000) {
-      return res.status(409).json({ message: 'Email already in use' });
-    }
-    res.status(400).json({ message: 'Failed to update employee', error: err.message });
+    sendError(err, res, 'Failed to update employee');
   }
 }
 
 async function deleteEmployee(req, res) {
-  const employee = await Employee.findByIdAndDelete(req.params.id);
-  if (!employee) {
-    return res.status(404).json({ message: 'Employee not found' });
+  try {
+    await deleteEmployeeById(req.params.id);
+    res.json({ message: 'Employee deleted' });
+  } catch (err) {
+    sendError(err, res, 'Failed to delete employee');
   }
-  res.json({ message: 'Employee deleted' });
 }
 
 module.exports = { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee };

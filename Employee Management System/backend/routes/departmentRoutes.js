@@ -1,6 +1,5 @@
 const express = require('express');
-const DEPARTMENTS = require('../constants/departments');
-const authMiddleware = require('../middleware/authMiddleware');
+const { DEPARTMENTS, authMiddleware } = require('../lib');
 
 const router = express.Router();
 

@@ -17,6 +17,7 @@ async function request(path, options = {}) {
   if (!res.ok) {
     throw new Error(data.message || 'Something went wrong')
   }
+
   return data
 }
 

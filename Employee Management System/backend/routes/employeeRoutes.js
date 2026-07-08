@@ -5,8 +5,8 @@ const {
   createEmployee,
   updateEmployee,
   deleteEmployee,
-} = require('../controllers/employeeController');
-const authMiddleware = require('../middleware/authMiddleware');
+} = require('../controllers');
+const { authMiddleware } = require('../lib');
 
 const router = express.Router();
 
