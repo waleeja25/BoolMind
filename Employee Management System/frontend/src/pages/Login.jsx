@@ -34,7 +34,7 @@ function Login() {
     try {
       const data = await login(form)
       saveSession(data)
-      navigate('/dashboard')
+      navigate('/employees')
     } catch (err) {
       setFormError(err.message)
     } finally {

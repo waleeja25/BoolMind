@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getEmployees, deleteEmployee, getDepartments } from '../lib/api'
 import { formatCurrency, formatDate } from '../lib/format'
+import { clearSession } from '../lib/auth'
 
 function SearchIcon() {
   return (
@@ -96,6 +97,11 @@ function Employees() {
     }
   }
 
+  function handleLogout() {
+    clearSession()
+    navigate('/login')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="mx-auto max-w-6xl">
@@ -108,10 +114,10 @@ function Employees() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={handleLogout}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
             >
-              Back
+              Logout
             </button>
             <Link
               to="/employees/new"
