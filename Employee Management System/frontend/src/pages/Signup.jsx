@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import AuthCard from '../components/AuthCard'
 import Input from '../components/Input'
 import Button from '../components/Button'
 import { validateEmail, validatePassword, validateUsername } from '../lib/validators'
+import { signup } from '../lib/api'
 
 function Signup() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', email: '', password: '' })
   const [errors, setErrors] = useState({})
+  const [formError, setFormError] = useState('')
   const [loading, setLoading] = useState(false)
 
   function handleChange(e) {
@@ -15,8 +18,9 @@ function Signup() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setFormError('')
 
     const newErrors = {
       username: validateUsername(form.username),
@@ -27,13 +31,22 @@ function Signup() {
     if (Object.values(newErrors).some(Boolean)) return
 
     setLoading(true)
-    // TODO: wire up to backend signup endpoint
-    setTimeout(() => setLoading(false), 800)
+    try {
+      await signup(form)
+      navigate('/login')
+    } catch (err) {
+      setFormError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <AuthCard title="Create an account" subtitle="Sign up to get started">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {formError && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{formError}</p>
+        )}
         <Input
           label="Username"
           type="text"
