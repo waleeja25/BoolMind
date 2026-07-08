@@ -21,12 +21,37 @@ function SearchIcon() {
   )
 }
 
+const PAGE_SIZE = 10
+
+function getPageNumbers(current, total) {
+  const pages = []
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - 1 && i <= current + 1)) {
+      pages.push(i)
+    }
+  }
+
+  const withEllipsis = []
+  let prev
+  for (const page of pages) {
+    if (prev && page - prev > 1) {
+      withEllipsis.push('...')
+    }
+    withEllipsis.push(page)
+    prev = page
+  }
+  return withEllipsis
+}
+
 function Employees() {
   const navigate = useNavigate()
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
   const [search, setSearch] = useState('')
   const [department, setDepartment] = useState('')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -37,17 +62,23 @@ function Employees() {
   }, [])
 
   useEffect(() => {
+    setPage(1)
+  }, [search, department])
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       loadEmployees()
     }, 300)
     return () => clearTimeout(timeout)
-  }, [search, department])
+  }, [search, department, page])
 
   async function loadEmployees() {
     setLoading(true)
     try {
-      const data = await getEmployees({ search, department })
-      setEmployees(data)
+      const result = await getEmployees({ search, department, page, limit: PAGE_SIZE })
+      setEmployees(result.data)
+      setTotal(result.total)
+      setTotalPages(result.totalPages)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -59,7 +90,7 @@ function Employees() {
     if (!window.confirm('Delete this employee?')) return
     try {
       await deleteEmployee(id)
-      setEmployees((prev) => prev.filter((emp) => emp._id !== id))
+      loadEmployees()
     } catch (err) {
       alert(err.message)
     }
@@ -72,7 +103,7 @@ function Employees() {
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Employees</h1>
             <p className="mt-1 text-sm text-gray-500">
-              {loading ? 'Loading...' : `${employees.length} ${employees.length === 1 ? 'employee' : 'employees'}`}
+              {loading ? 'Loading...' : `${total} ${total === 1 ? 'employee' : 'employees'}`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -207,6 +238,51 @@ function Employees() {
               </tbody>
             </table>
           </div>
+
+          {!loading && employees.length > 0 && (
+            <div className="flex items-center justify-between border-t border-gray-200 px-5 py-3">
+              <p className="text-sm text-gray-500">
+                Page {page} of {totalPages} ({total} total)
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Previous
+                </button>
+
+                {getPageNumbers(page, totalPages).map((p, i) =>
+                  p === '...' ? (
+                    <span key={`ellipsis-${i}`} className="px-2 text-sm text-gray-400">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors ${
+                        p === page
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

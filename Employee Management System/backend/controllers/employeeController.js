@@ -17,8 +17,25 @@ async function getEmployees(req, res) {
     filter.department = department;
   }
 
-  const employees = await Employee.find(filter).sort({ joiningDate: -1 });
-  res.json(employees);
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
+  const skip = (page - 1) * limit;
+
+  const [employees, total] = await Promise.all([
+    Employee.find(filter)
+      .sort({ joiningDate: -1, _id: -1 })
+      .skip(skip)
+      .limit(limit),
+    Employee.countDocuments(filter),
+  ]);
+
+  res.json({
+    data: employees,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+  });
 }
 
 async function getEmployee(req, res) {
