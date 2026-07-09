@@ -1,11 +1,11 @@
-const {login, signup} = require('../services');
+const { signup: signupService, login: loginService } = require('../services');
 
 async function signup(req, res) {
-  
+
   const { username, email, password } = req.body;
 
   try {
-    const result = await signup({ username, email, password });
+    const result = await signupService({ username, email, password });
     res.status(201).json(result);
   } catch (err) {
     res.status(500).json({ 
@@ -20,7 +20,7 @@ async function login(req, res) {
   const { email, password } = req.body;
 
   try {
-    const result = await login({ email, password });
+    const result = await loginService({ email, password });
     res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ 
