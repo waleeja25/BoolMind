@@ -85,10 +85,7 @@ async function createEmployee(data) {
 async function updateEmployeeById(id, data) {
   
   try {
-    const employee = await Employee.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    });
+    const employee = await Employee.findByIdAndUpdate(id, data);
     
     if (!employee) {
       throw new ApiError(404, 'Employee not found');
