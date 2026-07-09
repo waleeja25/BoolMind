@@ -5,7 +5,9 @@ function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function buildFilter({ search, department, joinedFrom, joinedTo }) {
+async function listEmployees(query) {
+  
+  const { search, department, joinedFrom, joinedTo } = query;
   const filter = {};
 
   if (search) {
@@ -36,11 +38,6 @@ function buildFilter({ search, department, joinedFrom, joinedTo }) {
     if (Object.keys(filter.joiningDate).length === 0) delete filter.joiningDate;
   }
 
-  return filter;
-}
-
-async function listEmployees(query) {
-  const filter = buildFilter(query);
 
   const page = Math.max(1, parseInt(query.page, 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 10));
@@ -65,45 +62,50 @@ async function listEmployees(query) {
 }
 
 async function getEmployeeById(id) {
+  
   const employee = await Employee.findById(id);
   if (!employee) {
-    throw new ApiError(404, 'Employee not found', { status: true });
+    throw new ApiError(404, 'Employee not found');
   }
   return employee;
 }
 
 async function createEmployee(data) {
+  
   try {
     return await Employee.create(data);
   } catch (err) {
     if (err.code === 11000) {
       throw new ApiError(409, 'Email already in use');
     }
-    throw new ApiError(400, 'Failed to create employee', { error: err.message });
+    throw new ApiError(400, 'Failed to create employee');
   }
 }
 
 async function updateEmployeeById(id, data) {
+  
   try {
     const employee = await Employee.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     });
+    
     if (!employee) {
       throw new ApiError(404, 'Employee not found');
     }
     return employee;
   } catch (err) {
-    if (err instanceof ApiError) throw err;
+    
     if (err.code === 11000) {
       throw new ApiError(409, 'Email already in use');
     }
-    throw new ApiError(400, 'Failed to update employee', { error: err.message });
+    throw new ApiError(400, 'Failed to update employee');
   }
 }
 
 async function deleteEmployeeById(id) {
   const employee = await Employee.findByIdAndDelete(id);
+  
   if (!employee) {
     throw new ApiError(404, 'Employee not found');
   }
