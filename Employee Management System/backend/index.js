@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const { connectDB, getPort } = require('./config');
+const { connectDB, connectRedis } = require('./config');
 const router = require('./routes');
 
 const app = express();
@@ -15,9 +15,9 @@ app.get('/', (req, res) => {
   res.send('API is running');
 });
 
-
 app.use(router)
 
+connectRedis()
 connectDB()
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
@@ -25,3 +25,4 @@ connectDB()
   .catch((err) => {
     console.error('MongoDB connection error:', err);
   });
+

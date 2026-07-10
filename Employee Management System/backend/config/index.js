@@ -1,3 +1,5 @@
 const connectDB = require('./db');
 
-module.exports = { connectDB};
+const { connectRedis, redisClient } = require('./redis');
+
+module.exports = { connectDB, connectRedis, redisClient };
