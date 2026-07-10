@@ -4,7 +4,7 @@ async function getCache(key) {
   try {
     return await redisClient.get(key);
   } catch (err) {
-    console.error("Redis Get Error: ");
+    console.error("Redis Get Error");
     return null;
   }
 }
@@ -15,7 +15,7 @@ async function setCache(key, value, ttl = 60) {
       EX: ttl,
     });
   } catch (err) {
-    console.error("Redis Set Error: ");
+    console.error("Redis Set Error");
   }
 }
 
@@ -27,7 +27,7 @@ async function delCache(pattern) {
       await redisClient.del(...keys);
     }
   } catch (err) {
-    console.error("Redis Del Error: ");
+    console.error("Redis Del Error");
   }
 }
 

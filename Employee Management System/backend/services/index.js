@@ -1,4 +1,4 @@
-const { signup, login } = require("./authService");
+const { signup, login, logout } = require("./authService");
 
 const {
   listEmployees,
@@ -13,6 +13,7 @@ const { getCache, setCache, delCache } = require("./redisService");
 module.exports = {
   signup,
   login,
+  logout,
   listEmployees,
   getEmployeeById,
   createEmployee,

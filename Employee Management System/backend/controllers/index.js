@@ -1,5 +1,5 @@
-const {signup,login} = require('./authController');
+const {signup, login, logout} = require('./authController');
 
 const {createEmployee,deleteEmployee,getEmployee,getEmployees,updateEmployee} = require('./employeeController')
 
-module.exports =  {signup,login,createEmployee,deleteEmployee,getEmployee,getEmployees,updateEmployee}
+module.exports =  {signup,login,logout,createEmployee,deleteEmployee,getEmployee,getEmployees,updateEmployee}
