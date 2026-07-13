@@ -8,8 +8,6 @@ const {
   deleteEmployeeById,
 } = require("./employeeService");
 
-const { getCache, setCache, delCache } = require("./redisService");
-
 module.exports = {
   signup,
   login,
@@ -19,7 +17,4 @@ module.exports = {
   createEmployee,
   updateEmployeeById,
   deleteEmployeeById,
-  getCache,
-  setCache,
-  delCache,
 };

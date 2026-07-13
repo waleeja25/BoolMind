@@ -1,6 +1,7 @@
 const { verifyToken } = require('../utils/jwt');
+const redis = require('../utils/redis')
 
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
 
   const authHeader = req.headers.authorization;
   
@@ -12,10 +13,19 @@ function authMiddleware(req, res, next) {
   
   try {
     const decoded = verifyToken(token);
+
+    const session = await redis.get(`session:${token}`);
+
+    if (!session) {
+      return res.status(401).json({
+        message: "Session expired. Please login again.",
+      });
+    }
+
     req.userId = decoded.userId;
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    return res.status(401).json({ message: 'Invalid or expired token', error: err.message, });
   }
 }
 
