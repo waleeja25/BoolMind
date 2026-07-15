@@ -1,0 +1,372 @@
+openapi: 3.0.3
+info:
+  title: Employee Management System API
+  description: REST API for managing employees.
+  version: 1.0.0
+servers:
+  - url: "http://localhost:5000/api"
+    description: Local Development Server
+tags:
+  - name: Authentication
+    description: Authentication APIs
+  - name: Employees
+    description: Employee Management APIs
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login User
+      description: Authenticate user and return JWT token.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+        "401":
+          description: Invalid Credentials
+    servers:
+      - url: "http://localhost:5000/api"
+        description: LocalDevelopment
+    parameters: []
+
+  /employees:
+    get:
+      tags:
+        - Employees
+      summary: Get all employees with filters and pagination
+      security:
+        - bearerAuth: []
+      operationId: getEmployees
+
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Search employees by name, email, or designation
+          schema:
+            type: string
+
+        - name: department
+          in: query
+          required: false
+          description: Filter employees by department
+          schema:
+            type: string
+            enum:
+              - Engineering
+              - Human Resources
+              - Sales
+              - Marketing
+              - Finance
+              - Operations
+              - Customer Support
+              - IT
+
+        - name: joinedFrom
+          in: query
+          required: false
+          description: Get employees who joined after this date
+          schema:
+            type: string
+            format: date
+
+        - name: joinedTo
+          in: query
+          required: false
+          description: Get employees who joined before this date
+          schema:
+            type: string
+            format: date
+
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+
+        - name: limit
+          in: query
+          required: false
+          description: Number of employees per page
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+
+        - name: sort
+          in: query
+          required: false
+          description: Sort employees by joining date
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+
+      responses:
+        "200":
+          description: Employees retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Employee"
+
+                  page:
+                    type: integer
+                    example: 1
+
+                  limit:
+                    type: integer
+                    example: 10
+
+                  total:
+                    type: integer
+                    example: 50
+
+                  totalPages:
+                    type: integer
+                    example: 5
+
+        "400":
+          description: Invalid query parameters
+    post:
+        tags:
+          - Employees
+        summary: Create Employee
+        security:
+          - bearerAuth: []
+        operationId: createEmployee
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateEmployee"
+        responses:
+          "201":
+            description: Employee created successfully
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Employee"
+          "400":
+            description: Validation Error
+
+  "/employees/{id}":
+    get:
+      tags:
+        - Employees
+      summary: Get Employee by ID
+      security:
+        - bearerAuth: []
+      operationId: getEmployeeById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Employee Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "404":
+          description: Employee Not Found
+    put:
+      tags:
+        - Employees
+      summary: Update Employee
+      security:
+        - bearerAuth: []
+      operationId: updateEmployee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEmployee"
+      responses:
+        "200":
+          description: Employee Updated Successfully
+        "404":
+          description: Employee Not Found
+    delete:
+      tags:
+        - Employees
+      summary: Delete Employee
+      security:
+        - bearerAuth: []
+      operationId: deleteEmployee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Employee Deleted Successfully
+        "404":
+          description: Employee Not Found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@example.com
+        password:
+          type: string
+          example: password123
+
+    Employee:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 686fd3e7a6f5c123456789ab
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@gmail.com
+        phone:
+          type: string
+          example: "03001234567"
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+            - other
+          example: male
+        department:
+          type: string
+          enum:
+            - Engineering
+            - Human Resources
+            - Sales
+            - Marketing
+            - Finance
+            - Operations
+            - Customer Support
+            - IT
+          example: IT
+        designation:
+          type: string
+          example: Software Engineer
+        salary:
+          type: number
+          example: 90000
+        joiningDate:
+          type: string
+          format: date
+          example: "2026-07-13"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-07-13T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-07-13T12:00:00Z"
+
+    CreateEmployee:
+      type: object
+      required:
+        - name
+        - email
+        - department
+        - designation
+        - salary
+        - joiningDate
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@gmail.com
+        phone:
+          type: string
+          example: "03001234567"
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+            - other
+          example: male
+        department:
+          type: string
+          enum:
+            - Engineering
+            - Human Resources
+            - Sales
+            - Marketing
+            - Finance
+            - Operations
+            - Customer Support
+            - IT
+          example: IT
+        designation:
+          type: string
+          example: Software Engineer
+        salary:
+          type: number
+          example: 90000
+        joiningDate:
+          type: string
+          format: date
+          example: "2026-07-13"
+
